@@ -46,12 +46,12 @@ The target and the nearest neighbor (by expected phylogeny) are the two closest 
 
 If the signal was strong enough, for instance, out of 3000 single copy orthologs identifed, 30 genes were annotated for GO:0033961 out of 32 of that very same GO:0033961 present in the whole genome overall, then we might be able to say it was enriched, as the fisher test would look something like:
 
-               | Genes in X | Genes NOT in X |
----------------|------------|----------------|
-Genes in A     |     30     |       2        |
-----------------------------|----------------|
-Genes NOT in A |    500     |       2468     |
----------------|------------|----------------|
+                   | Genes in X | Genes NOT in X |
+    ---------------|------------|----------------|
+    Genes in A     |     30     |       2        |
+    ----------------------------|----------------|
+    Genes NOT in A |    500     |       2468     |
+    ---------------|------------|----------------|
 
 From the species, when we have the "target" we go through all the trees and find the "sisters" to the target species. From the sisters (assuming the tree is resolved, MSA usually needs to be run with Orthofinder), we can then infer which orthogroups are closer if the sister appears. 
 
