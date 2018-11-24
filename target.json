@@ -1,0 +1,14 @@
+{
+	"target_species": "knufia",
+	"nearest_neighbor": "exophiala",
+	"outgroup": "neurospora",
+	"trait_match": "coniosporium",
+	"target_genome": "t",
+	"trait_genome": "f",
+	"outgroup_genome": "o",
+	"nearest_genome": "n",
+	"nearest_proteins": "np",
+	"trait_proteins": "fp",
+	"target_protein": "tp",
+	"outgroup_protein": "op"
+}
