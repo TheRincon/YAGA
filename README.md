@@ -48,8 +48,8 @@ If the signal was strong enough, for instance, out of 3000 single copy orthologs
 
                    | Genes in X | Genes NOT in X |
     ---------------|------------|----------------|
-    Genes in A     |     30     |       2        |
-    ----------------------------|----------------|
+    Genes in A     |    30      |         2      |
+    ---------------|------------|----------------|
     Genes NOT in A |    500     |       2468     |
     ---------------|------------|----------------|
 
@@ -57,7 +57,7 @@ From the species, when we have the "target" we go through all the trees and find
 
 So to reiterate, the GO term GO:0033961 was found 32 times in the whole genome and 30 of those instances were in the "enriched" set. 530 genes in total were in the "enriched" set. Notice I say genes, when I refer to a GO term, this is because if the interproscan file is included, YAGA gets an array of all the GO terms in the file (even duplicates) and then filters for unique per gene, so in effect it counts gene occurences linked to the GO term. Then it is correct to say genes, since the GO terms are deduplicated. 
 
-The OUTPUT file is then fed into R, through the Rscript and the fisher.test is run like so:
+The OUTPUT file is then fed into R, through the Rscript and the fisher.test is run for each line like so:
 
 ```R
 > x <- matrix(c(30, 2, 100, 2868), byrow = TRUE, 2, 2)

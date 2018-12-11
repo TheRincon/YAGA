@@ -99,6 +99,7 @@ def get_go(txt):
 			# only get unique values for each list in the dictionary
 			cc = unique(go_dict[j])
 			go_dict[j] = cc
+			print len(go_dict)
 	return go_dict
 
 def unique(list1):
@@ -187,7 +188,7 @@ def read_target_json(tj):
 	with open(tj, "rt") as tjf:
 		j = tjf.read()
 		c = json.loads(j)
-		proetin_fasta_list = c.map(f: x, )
+		# protein_fasta_list = c.map(f: x, )
 		return c['target_species'], c['trait_match'], c["nearest_neighbor"], c["outgroup"]
 
 # stupid but necessary, make sure DIRECTORY path ends with "/"
@@ -274,8 +275,9 @@ if __name__ == "__main__":
 	target_set = get_target_set(ts, lm, out, nn)
 	c = get_total_genes(go_file)
 	get_enriched_go(target_set, r, directory+"Orthogroups.csv", target, directory)
-	final_output_text = directory+"YAGA/ABBA_BABA_GO_OUTPUT.txt", "wt"
-	os.system('Rscript')
+	final_output_text = directory+"YAGA_OUTPUT.txt", "wt"
+	# command_string = "Rscript {} {} {}".format(sys.path[0] + "adjpvalue.r", directory + "YAGA_OUTPUT.txt", final_output_text, directory + "pvalues.txt")
+	# os.system(command_string)
 
 
 
