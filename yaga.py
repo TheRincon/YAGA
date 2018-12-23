@@ -54,7 +54,7 @@ def get_enriched_go(sco_list, r, og_file, target, directory):
 	for ff in cos:
 		if ff in cop:
 			final_array.append(str(ff) + "\t" + str(cop[ff]) + "\t" + str(int(cos[ff]) - int(cop[ff])) + "\t" + str(len(total_gene_list) - int(cop[ff])) + "\t" + str(10994 - (int(cos[ff]) - int(cop[ff])) - (len(total_gene_list) - int(cop[ff])) - int(cop[ff])) + "\n")
-	# del final_array[1]  # removes the '' row for GO terms, makes it look much nicer
+	del final_array[1]  # removes the '' row for GO terms, makes it look much nicer
 	with open(directory+"YAGA/ABBA_BABA_GO_OUTPUT.txt", "wt") as fi:
 		for line in final_array:
 			fi.write(line)
@@ -121,7 +121,7 @@ def get_KEGG(g):
 				kegg_dict[gene] = ann
 	return kegg_dict
 
-# too sparse to contain useful info, no duolicates to look for enrichment
+# too sparse to contain useful info, no duplicates to look for enrichment
 def get_cazy(v):
 	cazy_dict = {}
 	with open(v, "rt") as f4:
@@ -265,17 +265,22 @@ if __name__ == "__main__":
 	src = orthologues_path + "Gene_Trees/"
 	r = get_go(go_file)
 	# x = get_KEGG(kegg)
+	print "Creating YAGA output diretories...."
 	make_safe_dir(directory+"YAGA/")
 	make_safe_dir(directory+"YAGA/Single_Copy_Gene_Trees/")
+	print "Copying Single copy orthogroup files to \"../YAGA/Single_Copy_Gene_Trees/\"..."
 	copyfiles_to_dir(directory+"YAGA/Single_Copy_Gene_Trees/", src, sco_list)
 	target, lm, nn, out = read_target_json(tj)
+	print "Examining tree structures and finding features..."
 	ts = get_neighbors(directory+"YAGA/Single_Copy_Gene_Trees/", species, target)
 	target_set = get_target_set(ts, lm, out, nn)
 	c = get_total_genes(go_file)
+	print "Writing output file..."
 	get_enriched_go(target_set, r, directory+"Orthogroups.csv", target, directory)
 	# final_output_text = directory+"YAGA_OUTPUT.txt", "wt"
 	# command_string = "Rscript {} {} {}".format(sys.path[0] + "adjpvalue.r", directory + "YAGA_OUTPUT.txt", final_output_text, directory + "pvalues.txt")
 	# os.system(command_string)
+	print "Finished!\nOutput in {}".format(directory+"YAGA/")
 
 
 
