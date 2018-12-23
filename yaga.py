@@ -37,7 +37,7 @@ def get_enriched_go(sco_list, r, og_file, target, directory):
 						total_gene_list.append(i)
 						if i in r:
 							enriched_go[i] = r[i]
-	# pick better variable names, r, kk, gg
+	# pick better variable names: r, kk, gg
 	for nn in r:
 		gg = r[nn]
 		if len(gg):
@@ -54,7 +54,7 @@ def get_enriched_go(sco_list, r, og_file, target, directory):
 	for ff in cos:
 		if ff in cop:
 			final_array.append(str(ff) + "\t" + str(cop[ff]) + "\t" + str(int(cos[ff]) - int(cop[ff])) + "\t" + str(len(total_gene_list) - int(cop[ff])) + "\t" + str(10994 - (int(cos[ff]) - int(cop[ff])) - (len(total_gene_list) - int(cop[ff])) - int(cop[ff])) + "\n")
-	del final_array[1]  # removes the '' row for GO terms, makes it look much nicer
+	# del final_array[1]  # removes the '' row for GO terms, makes it look much nicer
 	with open(directory+"YAGA/ABBA_BABA_GO_OUTPUT.txt", "wt") as fi:
 		for line in final_array:
 			fi.write(line)
@@ -99,11 +99,10 @@ def get_go(txt):
 			# only get unique values for each list in the dictionary
 			cc = unique(go_dict[j])
 			go_dict[j] = cc
-			print len(go_dict)
 	return go_dict
 
 def unique(list1):
-	# I chose to make a new list here for readibality, rather than a (lambda) filter
+	# I chose to make a new list here for readability, rather than a (lambda) filter
 	unique_list = []
 	for x in list1:
 		if x not in unique_list:
@@ -154,7 +153,7 @@ def get_neighbors(dst, species, target):
 def end_yaga():
 	sys.exit()
 
-# cannot distinguish between no space, already existing or errors, please refine
+# cannot distinguish between no space, already existing or errors, refine
 def make_safe_dir(dir_name):
 	try:
 		os.makedirs(dir_name)
@@ -219,7 +218,6 @@ def get_total_genes(txt):
 				tot.append(v)
 				v = rows[0]
 	k = unique(tot)
-	print len(k)
 
 # return all the file paths I need in main from here, very messy
 def directory_check(directory):
@@ -267,15 +265,15 @@ if __name__ == "__main__":
 	src = orthologues_path + "Gene_Trees/"
 	r = get_go(go_file)
 	# x = get_KEGG(kegg)
-	make_safe_dir(orthologues_path + "Single_Copy_Gene_Trees/")
 	make_safe_dir(directory+"YAGA/")
-	# copyfiles_to_dir(dst, src, sco_list)
+	make_safe_dir(directory+"YAGA/Single_Copy_Gene_Trees/")
+	copyfiles_to_dir(directory+"YAGA/Single_Copy_Gene_Trees/", src, sco_list)
 	target, lm, nn, out = read_target_json(tj)
-	ts = get_neighbors(orthologues_path + "Single_Copy_Gene_Trees/", species, target)
+	ts = get_neighbors(directory+"YAGA/Single_Copy_Gene_Trees/", species, target)
 	target_set = get_target_set(ts, lm, out, nn)
 	c = get_total_genes(go_file)
 	get_enriched_go(target_set, r, directory+"Orthogroups.csv", target, directory)
-	final_output_text = directory+"YAGA_OUTPUT.txt", "wt"
+	# final_output_text = directory+"YAGA_OUTPUT.txt", "wt"
 	# command_string = "Rscript {} {} {}".format(sys.path[0] + "adjpvalue.r", directory + "YAGA_OUTPUT.txt", final_output_text, directory + "pvalues.txt")
 	# os.system(command_string)
 
