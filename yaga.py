@@ -3,6 +3,7 @@ from ete2 import Tree
 import argparse
 from shutil import copy, copyfile
 import os, errno
+import sys
 import json
 from collections import Counter
 
@@ -277,12 +278,6 @@ if __name__ == "__main__":
 	c = get_total_genes(go_file)
 	print "Writing output file..."
 	get_enriched_go(target_set, r, directory+"Orthogroups.csv", target, directory)
-	# final_output_text = directory+"YAGA_OUTPUT.txt", "wt"
-	# command_string = "Rscript {} {} {}".format(sys.path[0] + "adjpvalue.r", directory + "YAGA_OUTPUT.txt", final_output_text, directory + "pvalues.txt")
-	# os.system(command_string)
+	command_string = "Rscript {} {} > {}".format(sys.path[0] + "/adjpvalue.r", directory + "YAGA/ABBA_BABA_GO_OUTPUT.txt", directory + "YAGA/FINAL_YAGA_OUTPUT.txt", directory + "YAGA/FINAL_YAGA_OUTPUT.txt")
+ 	os.system(command_string)
 	print "Finished!\nOutput in {}".format(directory+"YAGA/")
-
-
-
-
-
