@@ -150,6 +150,13 @@ def get_neighbors(dst, species, target):
 						target_sisters[filename.split("_")[0]] = node.get_sisters()
 	return target_sisters
 
+def get_missing(orth):
+
+def get_expanded():
+
+def get_novel():
+
+
 # safer call to sys exit then ending in main
 def end_yaga():
 	sys.exit()
@@ -265,11 +272,11 @@ if __name__ == "__main__":
 	sco_list = get_scos(make_simple_tabs(len(species)), directory + "Orthogroups.GeneCount.csv")
 	src = orthologues_path + "Gene_Trees/"
 	r = get_go(go_file)
-	# x = get_KEGG(kegg)
+	x = get_KEGG(kegg_file)
 	print "Creating YAGA output diretories...."
 	make_safe_dir(directory+"YAGA/")
 	make_safe_dir(directory+"YAGA/Single_Copy_Gene_Trees/")
-	print "Copying Single copy orthogroup files to \"../YAGA/Single_Copy_Gene_Trees/\"..."
+	print "Copying Single copy orthogroup files to ../YAGA/Single_Copy_Gene_Trees/"
 	copyfiles_to_dir(directory+"YAGA/Single_Copy_Gene_Trees/", src, sco_list)
 	target, lm, nn, out = read_target_json(tj)
 	print "Examining tree structures and finding features..."

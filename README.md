@@ -82,14 +82,14 @@ This would be an example of enrichment.
 
 True ABBA/BABA would take SNPs and look at the D-Statistics. It would be easist to accept a GFF/GTF file and extract the DNA sequence from there. But, to make YAGA as accessible as possible, one can optionally use only a protein fasta and a refrence genome in fasta format. Exonerate can take the proteins and create alignments. 
 
-Regardless of how the DNA is come by, 
+Regardless of how the DNA is come by, the sequences can then be compared to see certain polymorphisms and evidence of introgression. 
 
 
 ### Tips ###
 
 Orthofinder names the "species" according to the protein fasta file names, so the "target.json" will need to have values similar to the filenames. If not, just run Orthofinder again with renamed protein fasta files. 
 
-Tested on Orthofinder 2.2.1, other Orthofinder versions should work. I will also update to newest. 
+Tested on Orthofinder 2.2.1, other Orthofinder versions should work.
 
 
 
