@@ -72,20 +72,14 @@ The available commands are:
 	def abba(self):
 		parser = argparse.ArgumentParser(
 			description='Genome wide analysis for introgression')
-		# prefixing the argument with -- means it's optional
 		parser.add_argument('--amend', action='store_true')
-		# now that we're inside a subcommand, ignore the first
-		# TWO argvs, ie the command (git) and the subcommand (commit)
 		args = parser.parse_args(sys.argv[2:])
 		print 'Running abba, amend=%s' % args.amend
 
 	def baba(self):
 		parser = argparse.ArgumentParser(
 			description='Sliding window admixture test')
-		# prefixing the argument with -- means it's optional
 		parser.add_argument('--amend', action='store_true')
-		# now that we're inside a subcommand, ignore the first
-		# TWO argvs, ie the command (git) and the subcommand (commit)
 		args = parser.parse_args(sys.argv[2:])
 		print 'Running abba, amend=%s' % args.amend
 
@@ -94,9 +88,3 @@ The available commands are:
 if __name__ == "__main__":
 
 	YAGA()
-
-	parser = argparse.ArgumentParser(description='ABBA/BABA Analysis for Othrofinder results.')
-	parser.add_argument('-d','--dir', help='Path to the Directory used to generate Orthofinder Results', required=True)
-	parser.add_argument('-g','--go', help='Path to the a GO file (Interproscan results)', required=True)
-	parser.add_argument('-k','--kegg', help='Path to the Kegg File (BLASTKoala file)', required=False)
-	parser.add_argument('-t','--target', help='Path to the target json')
