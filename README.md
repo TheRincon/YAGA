@@ -6,6 +6,19 @@ From an Orthofinder_Results folder it will conduct an automated filtering of sin
 
 While ABBA/BABA was not relavent for my master's thesis because a lack of introgression (fungi are not expected to hybridize and horizontal gene transfer is quite rare), I release this tool in the hope it will be useful to others. Instead I was looking for 
 
+### Requirements ###
+
+Need [R](http://archive.linux.duke.edu/cran/), the statistical programming language. 
+
+Python (2.7+) packages - ete2, argparse, and Biopython. They can be installed by pip. If you have not installed pip please follow insctructions from [here](https://www.makeuseof.com/tag/install-pip-for-python/). 
+
+Then 
+```bash
+pip install biopython ete2 
+```
+
+### Functionality ###
+
 The algorithm for the original ABBA/BABA-like analysis of YAGA is as follows:
 
 First, the file paths of pertinent files are deduced from the Orthfinder_Results folder as of Orthofinder version 2.2.1. It will also work for up to version 2.2.6 but I ignored those because of this bug. [put bug issue here] We create two new directories "YAGA" in the main folder, and "Single_Copy_Gene_Trees" in the "Orthologues" directory. The "YAGA" folder contains output files directly related to the analysis, while "Single_Copy_Gene_Trees" conatins the Gene trees which only have 1 gene per species tested, and all species must be present, essentially analogous to BUSCOs but for this dataset only. 
