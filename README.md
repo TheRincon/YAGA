@@ -14,7 +14,7 @@ Python (2.7+) packages - ete2, argparse, and Biopython. They can be installed by
 
 Then 
 ```bash
-pip install biopython ete2 
+pip install biopython ete2 argparse
 ```
 
 ### Functionality ###
@@ -62,9 +62,7 @@ If the signal was strong enough, for instance, out of 3000 single copy orthologs
                    | Genes in X | Genes NOT in X |
     ---------------|------------|----------------|
     Genes in A     |    30      |         2      |
-    ---------------|------------|----------------|
     Genes NOT in A |    500     |       2468     |
-    ---------------|------------|----------------|
 
 From the species, when we have the "target" we go through all the trees and find the "sisters" to the target species. From the sisters (assuming the tree is resolved, MSA usually needs to be run with Orthofinder), we can then infer which orthogroups are closer if the sister appears. 
 
@@ -93,7 +91,9 @@ This would be an example of enrichment.
 
 ### True ABBA/BABA analysis ###
 
-True ABBA/BABA would take SNPs and look at the D-Statistics. It would be easist to accept a GFF/GTF file and extract the DNA sequence from there. But, to make YAGA as accessible as possible, one can optionally use only a protein fasta and a refrence genome in fasta format. Exonerate can take the proteins and create alignments. 
+It might be useful to use the pipeline demonstrated in [this tutorial](http://evomics.org/learning/population-and-speciation-genomics/2018-population-and-speciation-genomics/abba-baba-statistics/). This does true ABBA/BABA, albeit with a custom ".geno" file. It also involves some preprocessing.
+
+True ABBA/BABA would take SNPs and look at the D-Statistics. It would be easist to accept a GFF/GTF file and extract the DNA sequence from there. But, to make YAGA as accessible as possible, one can optionally use only a protein fasta and a refrence genome in fasta format. Exonerate can take the proteins and create alignments. (In progress)
 
 Regardless of how the DNA is come by, the sequences can then be compared to see certain polymorphisms and evidence of introgression. 
 
