@@ -9,7 +9,6 @@ from collections import Counter
 
 # from Orthfinder actually get which are closer in distance to "target" and "trait"
 def get_enriched_annotations(sco_list, r, og_file, target, directory, **others):
-	# too many lists, I actually don't even need all these
 	final_array = []
 	enriched_go = {}
 	enriched_kegg = {}
@@ -67,7 +66,6 @@ def get_enriched_annotations(sco_list, r, og_file, target, directory, **others):
 		for line in final_array:
 			fi.write(line)
 
-# 
 def get_target_set(ts, lifestyle_match, outgroup, nearest_neighbor):
 	tally = {}
 	target_set = []
@@ -170,6 +168,7 @@ def make_safe_dir(dir_name):
 			raise
 
 # redundant, but duplicate single copy ortholog groups to a new directory for traceability
+# i.e. so everyone can see what was used
 def copyfiles_to_dir(dst, src, sco_list):
 	for og in sco_list:
 		og_name = og.strip()
@@ -201,6 +200,13 @@ def read_target_json(tj):
 		# protein_fasta_list = c.map(f: x, )
 		return c['target_species'], c['trait_match'], c["nearest_neighbor"], c["outgroup"]
 
+def read_target_json_abba(tj):
+	with open(tj, "rt") as tjf:
+		j = tjf.read()
+		c = json.loads(j)
+		# protein_fasta_list = c.map(f: x, )
+		return c['target_genome'], c['trait_genome'], c["nearest_genome"], c["outgroup_genome"], c["outgroup_gff"], c["target_gff"], c["nearest_gff"], c["trait_gff"]
+
 # stupid but necessary, make sure DIRECTORY path ends with "/"
 def append_slash(candidate_string):
 	if type(candidate_string) != str:
@@ -214,6 +220,7 @@ def append_slash(candidate_string):
 
 # not sure if this is Interproscan not annotating every gene or not, but I get 
 # 10507 genes instead of the expected 10994 genes for Knufia. TODO look into this
+# most likely interproscan doesn't have predictions for all genes
 def get_total_genes(txt):
 	tot = []
 	with open(txt, "rt") as f:
@@ -229,6 +236,85 @@ def get_total_genes(txt):
 				tot.append(v)
 				v = rows[0]
 	k = unique(tot)
+	return k
+
+def get_cds_fastas(t_genome, l_genome, n_genome, out_genome, out_gff, t_gff, n_gff, l_gff, species, directory):
+	# how did these get mixed?
+	t = get_cds_coordinates(t_genome, t_gff, directory)
+	o = get_cds_coordinates(out_genome, out_gff, directory)
+	l = get_cds_coordinates(l_genome, l_gff, directory)
+	n = get_cds_coordinates(n_genome, n_gff, directory)
+
+	command_string = "bedtools getfasta -name -fi {} -bed {} > {}".format(t_genome, t, directory+"YAGA/GFFs/" + t_genome.split("/")[-1].split(".")[0] + "_cds.fasta")
+	os.system(command_string)
+	command_string = "bedtools getfasta -name -fi {} -bed {} > {}".format(out_genome, o, directory+"YAGA/GFFs/" + out_genome.split("/")[-1].split(".")[0] + "_cds.fasta")
+	os.system(command_string)
+	command_string = "bedtools getfasta -name -fi {} -bed {} > {}".format(l_genome, l, directory+"YAGA/GFFs/" + l_genome.split("/")[-1].split(".")[0] + "_cds.fasta")
+	os.system(command_string)
+	command_string = "bedtools getfasta -name -fi {} -bed {} > {}".format(n_genome, n, directory+"YAGA/GFFs/" + n_genome.split("/")[-1].split(".")[0] + "_cds.fasta")
+	os.system(command_string)
+
+def get_cds_coordinates(genome, gff, directory):
+	test_dict = []
+	with open(genome, "rt") as ft:
+		with open(gff, "rt") as gt:
+			for line in gt:
+				if line.startswith("#"):
+					continue
+				else:
+					if line.split("\t")[2] == "CDS":
+						parts = line.split("\t")
+						descriptions = parts[8].split(";")
+						for i in descriptions:
+							if i.find("protein_id=") > -1:
+								parts[2] = i[11:].strip()
+								test_dict.append("\t".join(parts))
+							elif i.find("Name=") > -1:
+								parts[2] = i[5:].strip()
+								test_dict.append("\t".join(parts))
+							elif i.find("transcript_id ") > -1:
+								parts[2] = i[15:-1].strip()
+								test_dict.append("\t".join(parts))
+	with open(directory+"YAGA/GFFs/" + genome.split("/")[-1].split(".")[0] + "_cds.gff", "wt") as fout:
+		for i in test_dict:
+			fout.write(i)
+	return directory+"YAGA/GFFs/" + genome.split("/")[-1].split(".")[0] + "_cds.gff"
+	'''test_dict = []
+	with open(l_genome, "rt") as fl:
+		with open(l_gff, "rt") as gl:
+			for line in gl:
+				if line.startswith("#"):
+					continue
+				else:
+					if line.split("\t")[2] == "CDS":
+						test_dict.append(line)
+	with open(directory+"YAGA/GFFs/trait.gff", "wt") as fout:
+		for i in test_dict:
+			fout.write(i)
+	test_dict = []
+	with open(n_genome, "rt") as fn:
+		with open(n_gff, "rt") as gn:
+			for line in gn:
+				if line.startswith("#"):
+					continue
+				else:
+					if line.split("\t")[2] == "CDS":
+						test_dict.append(line)
+	with open(directory+"YAGA/GFFs/nearest.gff", "wt") as fout:
+		for i in test_dict:
+			fout.write(i)
+	test_dict = []
+	with open(out_genome, "rt") as fo:
+		with open(out_gff, "rt") as go:
+			for line in go:
+				if line.startswith("#"):
+					continue
+				else:
+					if line.split("\t")[2] == "CDS":
+						test_dict.append(line)
+	with open(directory+"YAGA/GFFs/outgroup.gff", "wt") as fout:
+		for i in test_dict:
+			fout.write(i)'''
 
 # return all the file paths I need in main from here, very messy
 def directory_check(directory):

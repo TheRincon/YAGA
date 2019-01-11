@@ -4,7 +4,7 @@ args = commandArgs(trailingOnly=TRUE)
 
 # setwd("/home/danielw1234/Desktop/Results/")
 dat <- read.table(args[1], sep = "\t", header = TRUE)
-dat <- dat[-1,]
+# dat <- dat[-1,]
 j <- list()
 h <- list()
 display_line <- list()

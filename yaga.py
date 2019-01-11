@@ -8,6 +8,9 @@ import json
 from collections import Counter
 import yutils
 
+import gffutils
+import pyfaidx
+
 class YAGA(object):
 
 	def __init__(self):
@@ -72,9 +75,17 @@ The available commands are:
 	def abba(self):
 		parser = argparse.ArgumentParser(
 			description='Genome wide analysis for introgression')
-		parser.add_argument('--amend', action='store_true')
+		parser.add_argument('-d','--dir', help='Path to the Directory used to generate Orthofinder Results', required=True)
+		parser.add_argument('-t','--target', help='Path to the target json')
 		args = parser.parse_args(sys.argv[2:])
-		print 'Running abba, amend=%s' % args.amend
+		directory = args.dir
+		tj = args.target
+		middle_path, end_path, species_path, orthologues_path, directory, other_end = yutils.directory_check(directory)
+		yutils.make_safe_dir(directory+"YAGA/")
+		species = yutils.find_names_species(species_path)
+		t_genome, l_genome, n_genome, out_genome, out_gff, t_gff, n_gff, l_gff = yutils.read_target_json_abba(tj)
+		yutils.make_safe_dir(directory+"YAGA/GFFs/")
+		yutils.get_cds_fastas(t_genome, l_genome, n_genome, out_genome, out_gff, t_gff, n_gff, l_gff, species, directory)
 
 	def baba(self):
 		parser = argparse.ArgumentParser(
