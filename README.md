@@ -104,6 +104,13 @@ Orthofinder names the "species" according to the protein fasta file names, so th
 
 Tested on Orthofinder 2.2.1, other Orthofinder versions should work.
 
+### TODO ###
+
+* Co-linear blocks from Mauve
+* Genome wide data
+* figure out the tutorial
+
+
 
 
 

@@ -238,6 +238,7 @@ def get_total_genes(txt):
 	k = unique(tot)
 	return k
 
+#heavy duplication, but just a first iteration
 def get_cds_fastas(t_genome, l_genome, n_genome, out_genome, out_gff, t_gff, n_gff, l_gff, species, directory):
 	# how did these get mixed?
 	t = get_cds_coordinates(t_genome, t_gff, directory)
@@ -245,17 +246,46 @@ def get_cds_fastas(t_genome, l_genome, n_genome, out_genome, out_gff, t_gff, n_g
 	l = get_cds_coordinates(l_genome, l_gff, directory)
 	n = get_cds_coordinates(n_genome, n_gff, directory)
 
-	command_string = "bedtools getfasta -name -fi {} -bed {} > {}".format(t_genome, t, directory+"YAGA/GFFs/" + t_genome.split("/")[-1].split(".")[0] + "_cds.fasta")
+	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(t_genome, t, directory+"YAGA/GFFs/" + t_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
 	os.system(command_string)
-	command_string = "bedtools getfasta -name -fi {} -bed {} > {}".format(out_genome, o, directory+"YAGA/GFFs/" + out_genome.split("/")[-1].split(".")[0] + "_cds.fasta")
+	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(out_genome, o, directory+"YAGA/GFFs/" + out_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
 	os.system(command_string)
-	command_string = "bedtools getfasta -name -fi {} -bed {} > {}".format(l_genome, l, directory+"YAGA/GFFs/" + l_genome.split("/")[-1].split(".")[0] + "_cds.fasta")
+	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(l_genome, l, directory+"YAGA/GFFs/" + l_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
 	os.system(command_string)
-	command_string = "bedtools getfasta -name -fi {} -bed {} > {}".format(n_genome, n, directory+"YAGA/GFFs/" + n_genome.split("/")[-1].split(".")[0] + "_cds.fasta")
+	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(n_genome, n, directory+"YAGA/GFFs/" + n_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
 	os.system(command_string)
 
+	u = combine_cds_fastas(directory+"YAGA/GFFs/" + t_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta", directory)
+	v = combine_cds_fastas(directory+"YAGA/GFFs/" + out_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta", directory)
+	w = combine_cds_fastas(directory+"YAGA/GFFs/" + n_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta", directory)
+	x = combine_cds_fastas(directory+"YAGA/GFFs/" + l_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta", directory)
+
+
+
+def combine_cds_fastas(fasta, directory):
+	fasta_dict = {}
+	current_id = ""
+	with open(fasta, "rt") as ffasta:
+		for line in ffasta:
+			rows = line.split("\t")
+			if current_id == rows[0] and rows[0] in fasta_dict:
+				seq_line = next(ffasta)
+				fasta_dict[rows[0]].append(seq_line)
+			else:
+				current_id = rows[0]
+				seq_line = next(ffasta)
+				fasta_dict[rows[0]] = [seq_line]
+	prefix = fasta.split("/")[-1].split(".")[0]
+	pp = prefix.split("_")
+	pop = "_".join(pp[:-2])
+	with open(directory+"YAGA/GFFs/" + pop + "_final.fasta", "wt") as cdsfasta:
+		for i, j in fasta_dict.iteritems():
+			cdsfasta.write(i[:-4] + "\n" + "".join(j))
+	return directory+"YAGA/GFFs/" + pop + "_final.fasta"
+
+
 def get_cds_coordinates(genome, gff, directory):
-	test_dict = []
+	cds_list = []
 	with open(genome, "rt") as ft:
 		with open(gff, "rt") as gt:
 			for line in gt:
@@ -268,53 +298,17 @@ def get_cds_coordinates(genome, gff, directory):
 						for i in descriptions:
 							if i.find("protein_id=") > -1:
 								parts[2] = i[11:].strip()
-								test_dict.append("\t".join(parts))
+								cds_list.append("\t".join(parts))
 							elif i.find("Name=") > -1:
 								parts[2] = i[5:].strip()
-								test_dict.append("\t".join(parts))
+								cds_list.append("\t".join(parts))
 							elif i.find("transcript_id ") > -1:
 								parts[2] = i[15:-1].strip()
-								test_dict.append("\t".join(parts))
+								cds_list.append("\t".join(parts))
 	with open(directory+"YAGA/GFFs/" + genome.split("/")[-1].split(".")[0] + "_cds.gff", "wt") as fout:
-		for i in test_dict:
+		for i in cds_list:
 			fout.write(i)
 	return directory+"YAGA/GFFs/" + genome.split("/")[-1].split(".")[0] + "_cds.gff"
-	'''test_dict = []
-	with open(l_genome, "rt") as fl:
-		with open(l_gff, "rt") as gl:
-			for line in gl:
-				if line.startswith("#"):
-					continue
-				else:
-					if line.split("\t")[2] == "CDS":
-						test_dict.append(line)
-	with open(directory+"YAGA/GFFs/trait.gff", "wt") as fout:
-		for i in test_dict:
-			fout.write(i)
-	test_dict = []
-	with open(n_genome, "rt") as fn:
-		with open(n_gff, "rt") as gn:
-			for line in gn:
-				if line.startswith("#"):
-					continue
-				else:
-					if line.split("\t")[2] == "CDS":
-						test_dict.append(line)
-	with open(directory+"YAGA/GFFs/nearest.gff", "wt") as fout:
-		for i in test_dict:
-			fout.write(i)
-	test_dict = []
-	with open(out_genome, "rt") as fo:
-		with open(out_gff, "rt") as go:
-			for line in go:
-				if line.startswith("#"):
-					continue
-				else:
-					if line.split("\t")[2] == "CDS":
-						test_dict.append(line)
-	with open(directory+"YAGA/GFFs/outgroup.gff", "wt") as fout:
-		for i in test_dict:
-			fout.write(i)'''
 
 # return all the file paths I need in main from here, very messy
 def directory_check(directory):
