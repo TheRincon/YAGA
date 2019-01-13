@@ -85,7 +85,10 @@ The available commands are:
 		species = yutils.find_names_species(species_path)
 		t_genome, l_genome, n_genome, out_genome, out_gff, t_gff, n_gff, l_gff = yutils.read_target_json_abba(tj)
 		yutils.make_safe_dir(directory+"YAGA/GFFs/")
-		yutils.get_cds_fastas(t_genome, l_genome, n_genome, out_genome, out_gff, t_gff, n_gff, l_gff, species, directory)
+		(u, v, w, x) = yutils.get_cds_fastas(t_genome, l_genome, n_genome, out_genome, out_gff, t_gff, n_gff, l_gff, species, directory)
+		pop1, pop3, pop2, pop4 = yutils.read_target_json(tj)
+		og_dictionary, indexed_species = yutils.orthogroup_mapping([pop1, pop2, pop3, pop4], species, directory+"Orthogroups.csv")
+		yutils.get_combinations(og_dictionary, indexed_species)
 
 	def baba(self):
 		parser = argparse.ArgumentParser(

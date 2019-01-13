@@ -6,6 +6,8 @@ import os, errno
 import sys
 import json
 from collections import Counter
+import itertools
+import ast
 
 # from Orthfinder actually get which are closer in distance to "target" and "trait"
 def get_enriched_annotations(sco_list, r, og_file, target, directory, **others):
@@ -260,7 +262,11 @@ def get_cds_fastas(t_genome, l_genome, n_genome, out_genome, out_gff, t_gff, n_g
 	w = combine_cds_fastas(directory+"YAGA/GFFs/" + n_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta", directory)
 	x = combine_cds_fastas(directory+"YAGA/GFFs/" + l_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta", directory)
 
+	return (u, v, w, x)
 
+def run_bedtools(genome, gff, output):
+	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(t_genome, t, directory+"YAGA/GFFs/" + t_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
+	os.system(command_string)
 
 def combine_cds_fastas(fasta, directory):
 	fasta_dict = {}
@@ -283,6 +289,48 @@ def combine_cds_fastas(fasta, directory):
 			cdsfasta.write(i[:-4] + "\n" + "".join(j))
 	return directory+"YAGA/GFFs/" + pop + "_final.fasta"
 
+# So messy, make it a list comprehension or more readable
+def orthogroup_mapping(species_map, species_list, orthogroups_file):
+	pops_dict = {}
+	orthogroup_map = []
+	for x in species_map:
+		pops_dict[x] = [i for i, s in enumerate(species_list) if x in s.lower()]
+	with open(orthogroups_file, "rt") as fortho:
+		next(fortho)
+		for line in fortho:
+			ogs = line.split("\t")
+			line_dict = {}
+			field_dict = {}
+			if (len(ogs) > 4):
+				for og in ogs[1:5]:
+					for i, s in pops_dict.iteritems():
+						field_dict[i] = ogs[int(s[0])+1]
+				line_dict[ogs[0]] = field_dict
+			orthogroup_map.append(line_dict)
+	return (orthogroup_map, pops_dict)
+
+def get_combinations(og_map, species_list):
+	og_list_of_lists = {}
+	final_combos = {}
+	final = {}
+	for g in og_map:
+		x = ast.literal_eval(str(g))
+		assert type(x) is dict
+		for i, s in x.iteritems():
+			combo = [[] for x in xrange(4)]
+			y = ast.literal_eval(str(s))
+			for k, v in y.iteritems():
+				for h, m in species_list.iteritems():
+					if (h == k):
+						combo[int(m[0])] = list(v.split(","))
+					og_list_of_lists[i] = combo
+	for j, z in og_list_of_lists.iteritems():
+		q = list(itertools.product(*z))
+		final_combos[j] = q
+	for a, b in final_combos.iteritems():
+		fin = list(filter(lambda t: '' not in t, b))
+		final[a] = fin
+	# print final
 
 def get_cds_coordinates(genome, gff, directory):
 	cds_list = []
@@ -324,7 +372,7 @@ def directory_check(directory):
 		end_path = append_slash(end_path)
 		other_end = append_slash(directory[x+7:x+13])
 		directory = append_slash(directory)
-		species_path = directory + "Orthogroups_SpeciesOverlaps.csv"
+		species_path = directory + "Orthogroups.csv"
 		orthologues_path = directory + "Orthologues" + other_end
 		return (middle_path, end_path, species_path, orthologues_path, directory, other_end)
 
