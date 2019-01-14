@@ -72,6 +72,7 @@ The available commands are:
 		os.system(command_string)
 		print "Finished!\nOutput in {}".format(directory+"YAGA/")
 
+	# rename variables to pop1, pop2, etc. as these are more accepted terms
 	def abba(self):
 		parser = argparse.ArgumentParser(
 			description='Genome wide analysis for introgression')
@@ -83,12 +84,14 @@ The available commands are:
 		middle_path, end_path, species_path, orthologues_path, directory, other_end = yutils.directory_check(directory)
 		yutils.make_safe_dir(directory+"YAGA/")
 		species = yutils.find_names_species(species_path)
-		t_genome, l_genome, n_genome, out_genome, out_gff, t_gff, n_gff, l_gff = yutils.read_target_json_abba(tj)
+		pop1_genome, pop2_genome, pop3_genome, pop4_genome, pop1_gff, pop2_gff, pop3_gff, pop4_gff = yutils.read_target_json_abba(tj)
 		yutils.make_safe_dir(directory+"YAGA/GFFs/")
-		(u, v, w, x) = yutils.get_cds_fastas(t_genome, l_genome, n_genome, out_genome, out_gff, t_gff, n_gff, l_gff, species, directory)
-		pop1, pop3, pop2, pop4 = yutils.read_target_json(tj)
+		yutils.make_safe_dir(directory+"YAGA/Alignments/")
+		(pop1_fasta, pop2_fasta, pop3_fasta, pop4_fasta, pop1_dict, pop2_dict, pop3_dict, pop4_dict) = yutils.get_cds_fastas(pop1_genome, pop2_genome, pop3_genome, pop4_genome, pop1_gff, pop2_gff, pop3_gff, pop4_gff, species, directory)
+		pop1, pop2, pop3, pop4 = yutils.read_target_json(tj)
 		og_dictionary, indexed_species = yutils.orthogroup_mapping([pop1, pop2, pop3, pop4], species, directory+"Orthogroups.csv")
-		yutils.get_combinations(og_dictionary, indexed_species)
+		combinations = yutils.get_combinations(og_dictionary, indexed_species)
+		yutils.get_seqs_for_alignments_second(combinations, [pop1_dict, pop2_dict, pop3_dict, pop4_dict], directory+"YAGA/Alignments/")
 
 	def baba(self):
 		parser = argparse.ArgumentParser(

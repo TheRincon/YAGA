@@ -200,14 +200,14 @@ def read_target_json(tj):
 		j = tjf.read()
 		c = json.loads(j)
 		# protein_fasta_list = c.map(f: x, )
-		return c['target_species'], c['trait_match'], c["nearest_neighbor"], c["outgroup"]
+		return c['pop1'], c['pop2'], c["pop3"], c["pop4"]
 
 def read_target_json_abba(tj):
 	with open(tj, "rt") as tjf:
 		j = tjf.read()
 		c = json.loads(j)
 		# protein_fasta_list = c.map(f: x, )
-		return c['target_genome'], c['trait_genome'], c["nearest_genome"], c["outgroup_genome"], c["outgroup_gff"], c["target_gff"], c["nearest_gff"], c["trait_gff"]
+		return c['pop1_genome'], c['pop2_genome'], c["pop3_genome"], c["pop4_genome"], c["pop1_gff"], c["pop2_gff"], c["pop3_gff"], c["pop4_gff"]
 
 # stupid but necessary, make sure DIRECTORY path ends with "/"
 def append_slash(candidate_string):
@@ -241,31 +241,31 @@ def get_total_genes(txt):
 	return k
 
 #heavy duplication, but just a first iteration
-def get_cds_fastas(t_genome, l_genome, n_genome, out_genome, out_gff, t_gff, n_gff, l_gff, species, directory):
+def get_cds_fastas(pop1_genome, pop2_genome, pop3_genome, pop4_genome, pop1_gff, pop2_gff, pop3_gff, pop4_gff, species, directory):
 	# how did these get mixed?
-	t = get_cds_coordinates(t_genome, t_gff, directory)
-	o = get_cds_coordinates(out_genome, out_gff, directory)
-	l = get_cds_coordinates(l_genome, l_gff, directory)
-	n = get_cds_coordinates(n_genome, n_gff, directory)
+	pop1 = get_cds_coordinates(pop1_gff, directory)
+	pop2 = get_cds_coordinates(pop2_gff, directory)
+	pop3 = get_cds_coordinates(pop3_gff, directory)
+	pop4 = get_cds_coordinates(pop4_gff, directory)
 
-	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(t_genome, t, directory+"YAGA/GFFs/" + t_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
+	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(pop1_genome, pop1, directory+"YAGA/GFFs/" + pop1_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
 	os.system(command_string)
-	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(out_genome, o, directory+"YAGA/GFFs/" + out_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
+	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(pop2_genome, pop2, directory+"YAGA/GFFs/" + pop2_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
 	os.system(command_string)
-	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(l_genome, l, directory+"YAGA/GFFs/" + l_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
+	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(pop3_genome, pop3, directory+"YAGA/GFFs/" + pop3_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
 	os.system(command_string)
-	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(n_genome, n, directory+"YAGA/GFFs/" + n_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
+	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(pop4_genome, pop4, directory+"YAGA/GFFs/" + pop4_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
 	os.system(command_string)
 
-	u = combine_cds_fastas(directory+"YAGA/GFFs/" + t_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta", directory)
-	v = combine_cds_fastas(directory+"YAGA/GFFs/" + out_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta", directory)
-	w = combine_cds_fastas(directory+"YAGA/GFFs/" + n_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta", directory)
-	x = combine_cds_fastas(directory+"YAGA/GFFs/" + l_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta", directory)
+	u, d = combine_cds_fastas(directory+"YAGA/GFFs/" + pop1_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta", directory)
+	v, e = combine_cds_fastas(directory+"YAGA/GFFs/" + pop2_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta", directory)
+	w, f = combine_cds_fastas(directory+"YAGA/GFFs/" + pop3_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta", directory)
+	x, g = combine_cds_fastas(directory+"YAGA/GFFs/" + pop4_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta", directory)
 
-	return (u, v, w, x)
+	return (u, v, w, x, d, e, f, g)
 
 def run_bedtools(genome, gff, output):
-	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(t_genome, t, directory+"YAGA/GFFs/" + t_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
+	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(genome, gff, directory+"YAGA/GFFs/" + genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
 	os.system(command_string)
 
 def combine_cds_fastas(fasta, directory):
@@ -274,20 +274,25 @@ def combine_cds_fastas(fasta, directory):
 	with open(fasta, "rt") as ffasta:
 		for line in ffasta:
 			rows = line.split("\t")
-			if current_id == rows[0] and rows[0] in fasta_dict:
+			if current_id == rows[0][:-4] and rows[0][:-4] in fasta_dict:
 				seq_line = next(ffasta)
-				fasta_dict[rows[0]].append(seq_line)
+				fasta_dict[rows[0][:-4]].append(seq_line.strip())
 			else:
-				current_id = rows[0]
+				#some cases the "getfasta" is opposite of what the -s (-) says
+				old_id = current_id
+				if not current_id == "":
+					if fasta_dict[current_id][-1].lower().startswith("atg"):
+						fasta_dict[current_id].reverse()
+				current_id = rows[0][:-4]
 				seq_line = next(ffasta)
-				fasta_dict[rows[0]] = [seq_line]
+				fasta_dict[rows[0][:-4]] = [seq_line.strip()]
 	prefix = fasta.split("/")[-1].split(".")[0]
 	pp = prefix.split("_")
 	pop = "_".join(pp[:-2])
 	with open(directory+"YAGA/GFFs/" + pop + "_final.fasta", "wt") as cdsfasta:
 		for i, j in fasta_dict.iteritems():
-			cdsfasta.write(i[:-4] + "\n" + "".join(j))
-	return directory+"YAGA/GFFs/" + pop + "_final.fasta"
+			cdsfasta.write(i + "\n" + "".join(j))
+	return (directory+"YAGA/GFFs/" + pop + "_final.fasta", fasta_dict)
 
 # So messy, make it a list comprehension or more readable
 def orthogroup_mapping(species_map, species_list, orthogroups_file):
@@ -330,33 +335,77 @@ def get_combinations(og_map, species_list):
 	for a, b in final_combos.iteritems():
 		fin = list(filter(lambda t: '' not in t, b))
 		final[a] = fin
-	# print final
+	return final
 
-def get_cds_coordinates(genome, gff, directory):
+def get_seqs_for_alignments(combos, species, pop_files):
+	fasta_flag = False
+	for i, s in combos.iteritems():
+		x = ast.literal_eval(str(s))
+		for y in x:
+			if y[3] == '\r\n':
+				continue
+			else:
+				for c in pop_files:
+					with open(c, "rt") as cf:
+						fasta_entry = []
+						pop_lines = cf.readlines()
+						for pop_line in pop_lines:
+							for z in range(0,4):
+								if (pop_line.strip() == (">" + y[z].strip())):
+									fasta_flag = True
+									fasta_entry = [pop_line.strip() + "\n"]
+								elif (fasta_flag) and not pop_line.startswith(">"):
+									fasta_entry.append(pop_line)
+								elif (fasta_flag) and pop_line.startswith(">"):
+									print fasta_entry
+									fasta_flag = False
+									break
+
+def get_seqs_for_alignments_second(combos, pop_files, alignment_directory):
+	alignment_prep = {}
+	for x, s in combos.iteritems():
+		ind = 0
+		for j in s:
+			ind += 1
+			with open(alignment_directory + x + "_" + str(ind) + ".fasta", "wt") as fout:
+				for y in pop_files:
+					for q, r in y.iteritems():
+						if j[3] == '\r\n':
+							continue
+						for z in range(0,4):
+							if (">" + j[z].strip() == q):
+								print "success"
+								fout.write(q + "\n")
+								pre_line = "".join(r).strip("\n")
+								for parts in fasta_line_generator(pre_line):
+									fout.write(parts + "\n")
+
+
+def fasta_line_generator(s):
+	for start in range(0, len(s), 70):
+		yield s[start:start+70]
+
+def get_cds_coordinates(gff, directory):
 	cds_list = []
-	with open(genome, "rt") as ft:
-		with open(gff, "rt") as gt:
-			for line in gt:
-				if line.startswith("#"):
-					continue
-				else:
-					if line.split("\t")[2] == "CDS":
-						parts = line.split("\t")
-						descriptions = parts[8].split(";")
-						for i in descriptions:
-							if i.find("protein_id=") > -1:
-								parts[2] = i[11:].strip()
-								cds_list.append("\t".join(parts))
-							elif i.find("Name=") > -1:
-								parts[2] = i[5:].strip()
-								cds_list.append("\t".join(parts))
-							elif i.find("transcript_id ") > -1:
-								parts[2] = i[15:-1].strip()
-								cds_list.append("\t".join(parts))
-	with open(directory+"YAGA/GFFs/" + genome.split("/")[-1].split(".")[0] + "_cds.gff", "wt") as fout:
+	with open(gff, "rt") as gt:
+		for line in gt:
+			if line.startswith("#"):
+				continue
+			else:
+				if line.split("\t")[2] == "CDS":
+					parts = line.split("\t")
+					descriptions = parts[8].split(";")
+					for i in descriptions:
+						if i.find("protein_id=") > -1:
+							parts[2] = i[11:].strip()
+							cds_list.append("\t".join(parts))
+						elif i.find("transcript_id ") > -1:
+							parts[2] = i[15:-1].strip()
+							cds_list.append("\t".join(parts))
+	with open(directory+"YAGA/GFFs/" + gff.split("/")[-1].split(".")[0] + "_cds.gff", "wt") as fout:
 		for i in cds_list:
 			fout.write(i)
-	return directory+"YAGA/GFFs/" + genome.split("/")[-1].split(".")[0] + "_cds.gff"
+	return directory+"YAGA/GFFs/" + gff.split("/")[-1].split(".")[0] + "_cds.gff"
 
 # return all the file paths I need in main from here, very messy
 def directory_check(directory):
