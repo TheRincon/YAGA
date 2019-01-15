@@ -280,6 +280,7 @@ def combine_cds_fastas(fasta, directory):
 				#some cases the "getfasta" is opposite of what the -s (-) says
 				old_id = current_id
 				if not current_id == "":
+					fasta_dict[current_id][-1] + "\n"
 					if fasta_dict[current_id][-1].lower().startswith("atg") and not fasta_dict[current_id][0].lower().startswith("atg"):
 						fasta_dict[current_id].reverse()
 				current_id = rows[0][:-4]
@@ -290,7 +291,10 @@ def combine_cds_fastas(fasta, directory):
 	pop = "_".join(pp[:-2])
 	with open(directory+"YAGA/GFFs/" + pop + "_final.fasta", "wt") as cdsfasta:
 		for i, j in fasta_dict.iteritems():
-			cdsfasta.write(i + "\n" + "".join(j))
+			# cdsfasta.write(i + "\n" + "".join(j) + "\n")
+			cdsfasta.write(i + "\n")
+			for part in fasta_line_generator("".join(j).strip("\n")):
+				cdsfasta.write(part + "\n")
 	return (directory+"YAGA/GFFs/" + pop + "_final.fasta", fasta_dict)
 
 # So messy, make it a list comprehension or more readable

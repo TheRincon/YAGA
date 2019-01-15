@@ -20,7 +20,7 @@ class YAGA(object):
 
 The available commands are:
    yaga     Runs analysis on duplicated and missing orthogroups, and target species pairs
-   abba     Genome wide analysis for introgression
+   abba     Gene by gene analysis for introgression (optionally MAUVE CoLinear Blocks)
    baba     Sliding window admixture test
 
 ''')
@@ -37,8 +37,8 @@ The available commands are:
 		getattr(self, args.command)()
 
 	def yaga(self):
-		parser = argparse.ArgumentParser(
-			description='Record changes to the repository')
+		print "Starting YAGA with \"yaga\" option..."
+		parser = argparse.ArgumentParser(description='Record changes to the repository')
 		# prefixing the argument with -- means it's optional
 		parser.add_argument('-d','--dir', help='Path to the Directory used to generate Orthofinder Results', required=True)
 		parser.add_argument('-g','--go', help='Path to the a GO file (Interproscan results)', required=True)
@@ -59,7 +59,7 @@ The available commands are:
 		print "Creating YAGA output diretories...."
 		yutils.make_safe_dir(directory+"YAGA/")
 		yutils.make_safe_dir(directory+"YAGA/Single_Copy_Gene_Trees/")
-		print "Copying Single copy orthogroup files to \"../YAGA/Single_Copy_Gene_Trees/\"..."
+		print "Copying Single copy orthogroup files to \"/YAGA/Single_Copy_Gene_Trees/\"..."
 		yutils.copyfiles_to_dir(directory+"YAGA/Single_Copy_Gene_Trees/", src, sco_list)
 		target, lm, nn, out = yutils.read_target_json(tj)
 		print "Examining tree structures and finding features..."
@@ -74,28 +74,32 @@ The available commands are:
 
 	# rename variables to pop1, pop2, etc. as these are more accepted terms
 	def abba(self):
-		parser = argparse.ArgumentParser(
-			description='Genome wide analysis for introgression')
+		print "Starting YAGA with \"yaga\" option..."
+		parser = argparse.ArgumentParser(description='Gene by gene analysis for introgression')
 		parser.add_argument('-d','--dir', help='Path to the Directory used to generate Orthofinder Results', required=True)
 		parser.add_argument('-t','--target', help='Path to the target json')
+		parser.add_argument('-m', '--mauve', help='MAUVE alignment file', required=False)
 		args = parser.parse_args(sys.argv[2:])
 		directory = args.dir
 		tj = args.target
 		middle_path, end_path, species_path, orthologues_path, directory, other_end = yutils.directory_check(directory)
+		print "Creating YAGA output diretories...."
 		yutils.make_safe_dir(directory+"YAGA/")
-		species = yutils.find_names_species(species_path)
-		pop1_genome, pop2_genome, pop3_genome, pop4_genome, pop1_gff, pop2_gff, pop3_gff, pop4_gff = yutils.read_target_json_abba(tj)
 		yutils.make_safe_dir(directory+"YAGA/GFFs/")
 		yutils.make_safe_dir(directory+"YAGA/Alignments/")
+		species = yutils.find_names_species(species_path)
+		pop1_genome, pop2_genome, pop3_genome, pop4_genome, pop1_gff, pop2_gff, pop3_gff, pop4_gff = yutils.read_target_json_abba(tj)
+		print "Extracting CDS regions..."
 		(pop1_fasta, pop2_fasta, pop3_fasta, pop4_fasta, pop1_dict, pop2_dict, pop3_dict, pop4_dict) = yutils.get_cds_fastas(pop1_genome, pop2_genome, pop3_genome, pop4_genome, pop1_gff, pop2_gff, pop3_gff, pop4_gff, species, directory)
 		pop1, pop2, pop3, pop4 = yutils.read_target_json(tj)
 		og_dictionary, indexed_species = yutils.orthogroup_mapping([pop1, pop2, pop3, pop4], species, directory+"Orthogroups.csv")
+		print "Generating ABBA/BABA trees from Orthogroups..."
 		combinations = yutils.get_combinations(og_dictionary, indexed_species)
 		yutils.get_seqs_for_alignments_second(combinations, [pop1_dict, pop2_dict, pop3_dict, pop4_dict], directory+"YAGA/Alignments/")
+		print "Finished!\nOutput in {}".format(directory+"YAGA/")
 
 	def baba(self):
-		parser = argparse.ArgumentParser(
-			description='Sliding window admixture test')
+		parser = argparse.ArgumentParser(description='Sliding window admixture test')
 		parser.add_argument('--amend', action='store_true')
 		args = parser.parse_args(sys.argv[2:])
 		print 'Running abba, amend=%s' % args.amend
