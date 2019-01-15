@@ -240,9 +240,8 @@ def get_total_genes(txt):
 	k = unique(tot)
 	return k
 
-#heavy duplication, but just a first iteration
+# heavy duplication, but just a first iteration
 def get_cds_fastas(pop1_genome, pop2_genome, pop3_genome, pop4_genome, pop1_gff, pop2_gff, pop3_gff, pop4_gff, species, directory):
-	# how did these get mixed?
 	pop1 = get_cds_coordinates(pop1_gff, directory)
 	pop2 = get_cds_coordinates(pop2_gff, directory)
 	pop3 = get_cds_coordinates(pop3_gff, directory)
@@ -281,7 +280,7 @@ def combine_cds_fastas(fasta, directory):
 				#some cases the "getfasta" is opposite of what the -s (-) says
 				old_id = current_id
 				if not current_id == "":
-					if fasta_dict[current_id][-1].lower().startswith("atg"):
+					if fasta_dict[current_id][-1].lower().startswith("atg") and not fasta_dict[current_id][0].lower().startswith("atg"):
 						fasta_dict[current_id].reverse()
 				current_id = rows[0][:-4]
 				seq_line = next(ffasta)
@@ -342,7 +341,7 @@ def get_seqs_for_alignments(combos, species, pop_files):
 	for i, s in combos.iteritems():
 		x = ast.literal_eval(str(s))
 		for y in x:
-			if y[3] == '\r\n':
+			if y[3] == '\r\n' or y[0] == '' or y[1] == '' or y[2]:
 				continue
 			else:
 				for c in pop_files:
@@ -365,7 +364,11 @@ def get_seqs_for_alignments_second(combos, pop_files, alignment_directory):
 	alignment_prep = {}
 	for x, s in combos.iteritems():
 		ind = 0
-		for j in s:
+		if len(s) > 30:
+			truncated = s[:30]
+		else:
+			truncated = s
+		for j in truncated:
 			ind += 1
 			with open(alignment_directory + x + "_" + str(ind) + ".fasta", "wt") as fout:
 				for y in pop_files:
@@ -374,7 +377,6 @@ def get_seqs_for_alignments_second(combos, pop_files, alignment_directory):
 							continue
 						for z in range(0,4):
 							if (">" + j[z].strip() == q):
-								print "success"
 								fout.write(q + "\n")
 								pre_line = "".join(r).strip("\n")
 								for parts in fasta_line_generator(pre_line):
