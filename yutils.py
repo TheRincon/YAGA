@@ -19,6 +19,7 @@ def get_enriched_annotations(sco_list, r, og_file, target, directory, **others):
 	total_gene_list = []
 	total_kegg_list = []
 	# messy way to keep track of which header is target species, refine this
+	# index = [i for i, s in enumerate(species_list) if x in s.lower()]
 	c_count = 0
 	h = 0
 	with open(og_file, "rt") as f2:
@@ -240,31 +241,18 @@ def get_total_genes(txt):
 	k = unique(tot)
 	return k
 
-# heavy duplication, but just a first iteration
-def get_cds_fastas(pop1_genome, pop2_genome, pop3_genome, pop4_genome, pop1_gff, pop2_gff, pop3_gff, pop4_gff, species, directory):
-	pop1 = get_cds_coordinates(pop1_gff, directory)
-	pop2 = get_cds_coordinates(pop2_gff, directory)
-	pop3 = get_cds_coordinates(pop3_gff, directory)
-	pop4 = get_cds_coordinates(pop4_gff, directory)
-
-	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(pop1_genome, pop1, directory+"YAGA/GFFs/" + pop1_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
-	os.system(command_string)
-	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(pop2_genome, pop2, directory+"YAGA/GFFs/" + pop2_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
-	os.system(command_string)
-	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(pop3_genome, pop3, directory+"YAGA/GFFs/" + pop3_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
-	os.system(command_string)
-	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(pop4_genome, pop4, directory+"YAGA/GFFs/" + pop4_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
-	os.system(command_string)
-
-	u, d = combine_cds_fastas(directory+"YAGA/GFFs/" + pop1_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta", directory)
-	v, e = combine_cds_fastas(directory+"YAGA/GFFs/" + pop2_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta", directory)
-	w, f = combine_cds_fastas(directory+"YAGA/GFFs/" + pop3_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta", directory)
-	x, g = combine_cds_fastas(directory+"YAGA/GFFs/" + pop4_genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta", directory)
-
-	return (u, v, w, x, d, e, f, g)
+def cds_helper(genomes, gffs, directory):
+	pop = [None] * 4
+	dict_list = [None] * 4
+	for i in range(0,4):
+		uncombined = directory+"YAGA/GFFs/" + genomes[i].split("/")[-1].split(".")[0] + "_uncombined_cds.fasta"
+		pop[i] = get_cds_coordinates(gffs[i], directory)
+		run_bedtools(genomes[i], pop[i], uncombined)
+		dict_list[i] = combine_cds_fastas(uncombined, directory)
+	return dict_list
 
 def run_bedtools(genome, gff, output):
-	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(genome, gff, directory+"YAGA/GFFs/" + genome.split("/")[-1].split(".")[0] + "_uncombined_cds.fasta")
+	command_string = "bedtools getfasta -name -s -fi {} -bed {} > {}".format(genome, gff, output)
 	os.system(command_string)
 
 def combine_cds_fastas(fasta, directory):
@@ -291,13 +279,11 @@ def combine_cds_fastas(fasta, directory):
 	pop = "_".join(pp[:-2])
 	with open(directory+"YAGA/GFFs/" + pop + "_final.fasta", "wt") as cdsfasta:
 		for i, j in fasta_dict.iteritems():
-			# cdsfasta.write(i + "\n" + "".join(j) + "\n")
 			cdsfasta.write(i + "\n")
 			for part in fasta_line_generator("".join(j).strip("\n")):
 				cdsfasta.write(part + "\n")
-	return (directory+"YAGA/GFFs/" + pop + "_final.fasta", fasta_dict)
+	return (fasta_dict)
 
-# So messy, make it a list comprehension or more readable
 def orthogroup_mapping(species_map, species_list, orthogroups_file):
 	pops_dict = {}
 	orthogroup_map = []
@@ -340,31 +326,7 @@ def get_combinations(og_map, species_list):
 		final[a] = fin
 	return final
 
-def get_seqs_for_alignments(combos, species, pop_files):
-	fasta_flag = False
-	for i, s in combos.iteritems():
-		x = ast.literal_eval(str(s))
-		for y in x:
-			if y[3] == '\r\n' or y[0] == '' or y[1] == '' or y[2]:
-				continue
-			else:
-				for c in pop_files:
-					with open(c, "rt") as cf:
-						fasta_entry = []
-						pop_lines = cf.readlines()
-						for pop_line in pop_lines:
-							for z in range(0,4):
-								if (pop_line.strip() == (">" + y[z].strip())):
-									fasta_flag = True
-									fasta_entry = [pop_line.strip() + "\n"]
-								elif (fasta_flag) and not pop_line.startswith(">"):
-									fasta_entry.append(pop_line)
-								elif (fasta_flag) and pop_line.startswith(">"):
-									print fasta_entry
-									fasta_flag = False
-									break
-
-def get_seqs_for_alignments_second(combos, pop_files, alignment_directory):
+def get_seqs_for_alignments(combos, pop_files, combo_directory):
 	alignment_prep = {}
 	for x, s in combos.iteritems():
 		ind = 0
@@ -373,12 +335,12 @@ def get_seqs_for_alignments_second(combos, pop_files, alignment_directory):
 		else:
 			truncated = s
 		for j in truncated:
+			if (j[3] == '\r\n' or j[1] == '\r\n' or j[2] == '\r\n' or j[0] == '\r\n'):
+				continue
 			ind += 1
-			with open(alignment_directory + x + "_" + str(ind) + ".fasta", "wt") as fout:
+			with open(combo_directory + x + "_" + str(ind) + ".fasta", "wt") as fout:
 				for y in pop_files:
 					for q, r in y.iteritems():
-						if j[3] == '\r\n':
-							continue
 						for z in range(0,4):
 							if (">" + j[z].strip() == q):
 								fout.write(q + "\n")
@@ -386,6 +348,11 @@ def get_seqs_for_alignments_second(combos, pop_files, alignment_directory):
 								for parts in fasta_line_generator(pre_line):
 									fout.write(parts + "\n")
 
+def mafft_files(combo_directory):
+	mafft_list = os.listdir(combo_directory)
+	for mafft_file in mafft_list:
+		command_string = "mafft {} > {}".format(mafft_file, )
+		os.system(command_string)
 
 def fasta_line_generator(s):
 	for start in range(0, len(s), 70):

@@ -8,8 +8,24 @@ While ABBA/BABA was not relavent for my master's thesis because a lack of introg
 
 ### Requirements ###
 
-Need [R](http://archive.linux.duke.edu/cran/), the statistical programming language. 
+Need [R](http://archive.linux.duke.edu/cran/), the statistical programming language. Also, if you want to use the "abba" option, then please install "evobiR":
 
+```r
+install.packages("evobiR")
+```
+
+Please also install [mafft](https://mafft.cbrc.jp/alignment/software/source.html) and [bedtools](https://bedtools.readthedocs.io/en/latest/content/installation.html) (for MacOS):
+
+```bash
+brew install mafft bedtools
+```
+
+The main functions are from python. Please have version 2.7+ 
+Check the version with:
+
+```bash
+python -v
+```
 Python (2.7+) packages - ete2, argparse, and Biopython. They can be installed by pip. If you have not installed pip please follow insctructions from [here](https://www.makeuseof.com/tag/install-pip-for-python/). 
 
 Then 

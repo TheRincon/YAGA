@@ -74,7 +74,7 @@ The available commands are:
 
 	# rename variables to pop1, pop2, etc. as these are more accepted terms
 	def abba(self):
-		print "Starting YAGA with \"yaga\" option..."
+		print "Starting YAGA with \"abba\" option..."
 		parser = argparse.ArgumentParser(description='Gene by gene analysis for introgression')
 		parser.add_argument('-d','--dir', help='Path to the Directory used to generate Orthofinder Results', required=True)
 		parser.add_argument('-t','--target', help='Path to the target json')
@@ -83,19 +83,21 @@ The available commands are:
 		directory = args.dir
 		tj = args.target
 		middle_path, end_path, species_path, orthologues_path, directory, other_end = yutils.directory_check(directory)
-		print "Creating YAGA output diretories...."
+		print "Creating YAGA output directories...."
 		yutils.make_safe_dir(directory+"YAGA/")
 		yutils.make_safe_dir(directory+"YAGA/GFFs/")
 		yutils.make_safe_dir(directory+"YAGA/Alignments/")
+		yutils.make_safe_dir(directory+"YAGA/Combinations/")
+		print "Getting Populations and Species..."
 		species = yutils.find_names_species(species_path)
 		pop1_genome, pop2_genome, pop3_genome, pop4_genome, pop1_gff, pop2_gff, pop3_gff, pop4_gff = yutils.read_target_json_abba(tj)
 		print "Extracting CDS regions..."
-		(pop1_fasta, pop2_fasta, pop3_fasta, pop4_fasta, pop1_dict, pop2_dict, pop3_dict, pop4_dict) = yutils.get_cds_fastas(pop1_genome, pop2_genome, pop3_genome, pop4_genome, pop1_gff, pop2_gff, pop3_gff, pop4_gff, species, directory)
+		pop_dicts = yutils.cds_helper([pop1_genome, pop2_genome, pop3_genome, pop4_genome], [pop1_gff, pop2_gff, pop3_gff, pop4_gff], directory)
 		pop1, pop2, pop3, pop4 = yutils.read_target_json(tj)
 		og_dictionary, indexed_species = yutils.orthogroup_mapping([pop1, pop2, pop3, pop4], species, directory+"Orthogroups.csv")
-		print "Generating ABBA/BABA trees from Orthogroups..."
+		print "Generating ABBA/BABA Fastas from Orthogroups..."
 		combinations = yutils.get_combinations(og_dictionary, indexed_species)
-		yutils.get_seqs_for_alignments_second(combinations, [pop1_dict, pop2_dict, pop3_dict, pop4_dict], directory+"YAGA/Alignments/")
+		yutils.get_seqs_for_alignments(combinations, pop_dicts, directory+"YAGA/Combinations/")
 		print "Finished!\nOutput in {}".format(directory+"YAGA/")
 
 	def baba(self):
