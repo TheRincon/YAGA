@@ -332,7 +332,7 @@ def get_seqs_for_alignments(combos, pop_files, combo_directory):
 	for x, s in combos.iteritems():
 		ind = 0
 		if len(s) > 10:
-			s[:10]
+			truncated = s[:10]
 		else:
 			truncated = s
 		for j in truncated:
