@@ -20,7 +20,7 @@ class YAGA(object):
 
 The available commands are:
    yaga     Runs analysis on duplicated and missing orthogroups, and target species pairs
-   abba     Gene by gene analysis for introgression (optionally MAUVE CoLinear Blocks)
+   abba     Gene by gene analysis for introgression
    baba     Sliding window admixture test
 
 ''')
@@ -39,11 +39,10 @@ The available commands are:
 	def yaga(self):
 		print "Starting YAGA with \"yaga\" option..."
 		parser = argparse.ArgumentParser(description='Record changes to the repository')
-		# prefixing the argument with -- means it's optional
 		parser.add_argument('-d','--dir', help='Path to the Directory used to generate Orthofinder Results', required=True)
 		parser.add_argument('-g','--go', help='Path to the a GO file (Interproscan results)', required=True)
 		parser.add_argument('-k','--kegg', help='Path to the Kegg File (BLASTKoala file)', required=False)
-		parser.add_argument('-t','--target', help='Path to the target json')
+		parser.add_argument('-t','--target', help='Path to the target json', required=True)
 		args = vars(parser.parse_args(sys.argv[2:]))
 		directory = args["dir"]
 		go_file = args["go"]
@@ -72,12 +71,11 @@ The available commands are:
 		os.system(command_string)
 		print "Finished!\nOutput in {}".format(directory+"YAGA/")
 
-	# rename variables to pop1, pop2, etc. as these are more accepted terms
 	def abba(self):
 		print "Starting YAGA with \"abba\" option..."
 		parser = argparse.ArgumentParser(description='Gene by gene analysis for introgression')
 		parser.add_argument('-d','--dir', help='Path to the Directory used to generate Orthofinder Results', required=True)
-		parser.add_argument('-t','--target', help='Path to the target json')
+		parser.add_argument('-t','--target', help='Path to the target json', required=True)
 		parser.add_argument('-m', '--mauve', help='MAUVE alignment file', required=False)
 		args = parser.parse_args(sys.argv[2:])
 		directory = args.dir
@@ -98,16 +96,22 @@ The available commands are:
 		print "Generating ABBA/BABA Fastas from Orthogroups..."
 		combinations = yutils.get_combinations(og_dictionary, indexed_species)
 		yutils.get_seqs_for_alignments(combinations, pop_dicts, directory+"YAGA/Combinations/")
+		print "Getting MAFFT alignements..."
+		yutils.run_mafft(directory+"YAGA/Combinations/", directory+"YAGA/Alignments/")
+		print "Calling into R to calculate ABBA/BABA likelihoods..."
 		print "Finished!\nOutput in {}".format(directory+"YAGA/")
 
 	def baba(self):
+		print "Starting YAGA with \"baba\" option..."
 		parser = argparse.ArgumentParser(description='Sliding window admixture test')
-		parser.add_argument('--amend', action='store_true')
+		parser.add_argument('-d','--dir', help='Path to the Directory used to generate Orthofinder Results', required=True)
+		parser.add_argument('-m', '--mauve', help='MAUVE alignment file', required=False)
+		parser.add_argument('-t','--target', help='Path to the target json', required=True)
 		args = parser.parse_args(sys.argv[2:])
-		print 'Running abba, amend=%s' % args.amend
+		tj = args.target
+		directory = args.dir
+		middle_path, end_path, species_path, orthologues_path, directory, other_end = yutils.directory_check(directory)
 
-# still extremely messy TODO cleanup arg extraction, make more safety/sanity checks, look into
-# protein2genome align, get DNA and get SNPs from there to do true ABBA/BABA analysis
 if __name__ == "__main__":
 
 	YAGA()

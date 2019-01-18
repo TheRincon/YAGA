@@ -4,7 +4,7 @@
 
 From an Orthofinder_Results folder it will conduct an automated filtering of single copy orthologs for the species provided and then, paired with a KEGG, or GO file (or both) will associate functional enrichment for the different species and characteristics. 
 
-While ABBA/BABA was not relavent for my master's thesis because a lack of introgression (fungi are not expected to hybridize and horizontal gene transfer is quite rare), I release this tool in the hope it will be useful to others. Instead I was looking for 
+While ABBA/BABA was not relavent for my master's thesis because a lack of introgression (fungi are not expected to hybridize and horizontal gene transfer is quite rare), I release this tool in the hope it will be useful to others. Instead, I was looking for identity between genes of organisms that have desired traits but within the structure of the ABBA/BABA four-taxa tree. 
 
 ### Requirements ###
 

@@ -8,6 +8,7 @@ import json
 from collections import Counter
 import itertools
 import ast
+import random
 
 # from Orthfinder actually get which are closer in distance to "target" and "trait"
 def get_enriched_annotations(sco_list, r, og_file, target, directory, **others):
@@ -330,8 +331,8 @@ def get_seqs_for_alignments(combos, pop_files, combo_directory):
 	alignment_prep = {}
 	for x, s in combos.iteritems():
 		ind = 0
-		if len(s) > 30:
-			truncated = s[:30]
+		if len(s) > 10:
+			s[:10]
 		else:
 			truncated = s
 		for j in truncated:
@@ -348,10 +349,10 @@ def get_seqs_for_alignments(combos, pop_files, combo_directory):
 								for parts in fasta_line_generator(pre_line):
 									fout.write(parts + "\n")
 
-def mafft_files(combo_directory):
+def run_mafft(combo_directory, output_directory, ):
 	mafft_list = os.listdir(combo_directory)
 	for mafft_file in mafft_list:
-		command_string = "mafft {} > {}".format(mafft_file, )
+		command_string = "mafft --quiet {} > {}".format(combo_directory + mafft_file, output_directory + "aligned_" + mafft_file)
 		os.system(command_string)
 
 def fasta_line_generator(s):
