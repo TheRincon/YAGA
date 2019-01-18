@@ -381,6 +381,25 @@ def get_cds_coordinates(gff, directory):
 			fout.write(i)
 	return directory+"YAGA/GFFs/" + gff.split("/")[-1].split(".")[0] + "_cds.gff"
 
+def parse_abba_baba(abba_file):
+	og_fine_dict = {}
+	og_coarse_dict = {}
+	with open(abba_file, "rt") as f:
+		for line in f:
+			clipped = line.split("] ")
+			if clipped[1].startswith("|||"):
+				og = next(f)
+				subscript = next(f)
+				next(f)
+				next(f)
+				next(f)
+				D_1 = next(f).split("D statistic = ")[1]
+				D = D_1[:-1]
+				og_fine_dict[og + "_" + subscript] = D
+				og_coarse_dict[og] = D
+
+
+
 # return all the file paths I need in main from here, very messy
 def directory_check(directory):
 	end_path = ""
