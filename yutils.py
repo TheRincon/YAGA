@@ -308,7 +308,14 @@ def get_combinations(og_map, species_list):
 	og_list_of_lists = {}
 	final_combos = {}
 	final = {}
+	ucounter = 0
+	lcounter = 0
+	ulen = len(og_map)
 	for g in og_map:
+		ucounter = ucounter + 1
+		sys.stdout.write('\r')
+		sys.stdout.write("%d / %d" % (ucounter, ulen))
+		sys.stdout.flush()
 		x = ast.literal_eval(str(g))
 		assert type(x) is dict
 		for i, s in x.iteritems():
@@ -319,7 +326,12 @@ def get_combinations(og_map, species_list):
 					if (h == k):
 						combo[int(m[0])] = list(v.split(","))
 					og_list_of_lists[i] = combo
+	print "\nCreating combinations..."
 	for j, z in og_list_of_lists.iteritems():
+		lcounter = lcounter + 1
+		sys.stdout.write('\r')
+		sys.stdout.write("%d / %d" % (lcounter, ulen))
+		sys.stdout.flush()
 		q = list(itertools.product(*z))
 		final_combos[j] = q
 	for a, b in final_combos.iteritems():
@@ -329,7 +341,14 @@ def get_combinations(og_map, species_list):
 
 def get_seqs_for_alignments(combos, pop_files, combo_directory):
 	alignment_prep = {}
+	fcounter = 0
+	no = len(combos)
+	print "\nWriting combo fastas..."
 	for x, s in combos.iteritems():
+		fcounter = fcounter + 1
+		sys.stdout.write('\r')
+		sys.stdout.write("%d / %d" % (fcounter, no))
+		sys.stdout.flush()
 		ind = 0
 		if len(s) > 10:
 			truncated = s[:10]
@@ -351,9 +370,18 @@ def get_seqs_for_alignments(combos, pop_files, combo_directory):
 
 def run_mafft(combo_directory, output_directory, ):
 	mafft_list = os.listdir(combo_directory)
+	xlen = len(mafft_list)
+	xcounter = 0
+	print "Producing alignments..."
 	for mafft_file in mafft_list:
+		xcounter + 1
 		command_string = "mafft --quiet {} > {}".format(combo_directory + mafft_file, output_directory + "aligned_" + mafft_file)
 		os.system(command_string)
+		xcounter= xcounter + 1
+		sys.stdout.write('\r')
+		sys.stdout.write("%d / %d" % (xcounter, xlen))
+		sys.stdout.flush()
+	return len(mafft_list)
 
 def fasta_line_generator(s):
 	for start in range(0, len(s), 70):
@@ -381,9 +409,9 @@ def get_cds_coordinates(gff, directory):
 			fout.write(i)
 	return directory+"YAGA/GFFs/" + gff.split("/")[-1].split(".")[0] + "_cds.gff"
 
-def parse_abba_baba(abba_file):
+def parse_abba_baba(abba_file, num):
 	og_fine_dict = {}
-	og_coarse_dict = {}
+	og_coarse_dict = [[] for x in xrange(num)]
 	with open(abba_file, "rt") as f:
 		for line in f:
 			clipped = line.split("] ")
@@ -396,7 +424,12 @@ def parse_abba_baba(abba_file):
 				D_1 = next(f).split("D statistic = ")[1]
 				D = D_1[:-1]
 				og_fine_dict[og + "_" + subscript] = D
-				og_coarse_dict[og] = D
+				if og_coarse_dict[og] is None:
+					og_coarse_dict[og] = D
+				else:
+					og_coarse_dict[og].appnd(D)
+	print og_coarse_dict
+	print og_fine_dict
 
 
 

@@ -86,6 +86,7 @@ The available commands are:
 		yutils.make_safe_dir(directory+"YAGA/GFFs/")
 		yutils.make_safe_dir(directory+"YAGA/Alignments/")
 		yutils.make_safe_dir(directory+"YAGA/Combinations/")
+		yutils.make_safe_dir(directory+"YAGA/Results/")
 		print "Getting Populations and Species..."
 		species = yutils.find_names_species(species_path)
 		pop1_genome, pop2_genome, pop3_genome, pop4_genome, pop1_gff, pop2_gff, pop3_gff, pop4_gff = yutils.read_target_json_abba(tj)
@@ -97,8 +98,11 @@ The available commands are:
 		combinations = yutils.get_combinations(og_dictionary, indexed_species)
 		yutils.get_seqs_for_alignments(combinations, pop_dicts, directory+"YAGA/Combinations/")
 		print "Getting MAFFT alignements..."
-		yutils.run_mafft(directory+"YAGA/Combinations/", directory+"YAGA/Alignments/")
+		num_of_alignments = yutils.run_mafft(directory+"YAGA/Combinations/", directory+"YAGA/Alignments/")
 		print "Calling into R to calculate ABBA/BABA likelihoods..."
+		command_string = "Rscript {} {} > {}".format(sys.path[0] + "/abbababa.r", directory + "YAGA/Alignments/", directory + "YAGA/Results/ABBA_BABA_OUTPUT.txt")
+		os.system(command_string)
+		yutils.parse_abba_baba(directory+"YAGA/Results/ABBA_BABA_OUTPUT.txt", num_of_alignments)
 		print "Finished!\nOutput in {}".format(directory+"YAGA/")
 
 	def baba(self):
