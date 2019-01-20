@@ -202,7 +202,7 @@ def read_target_json(tj):
 		j = tjf.read()
 		c = json.loads(j)
 		# protein_fasta_list = c.map(f: x, )
-		return c['pop1'], c['pop2'], c["pop3"], c["pop4"]
+		return c['ortho_finder_results_directory'], c['pop1'], c['pop2'], c["pop3"], c["pop4"]
 
 def read_target_json_abba(tj):
 	with open(tj, "rt") as tjf:
@@ -372,7 +372,6 @@ def run_mafft(combo_directory, output_directory, ):
 	mafft_list = os.listdir(combo_directory)
 	xlen = len(mafft_list)
 	xcounter = 0
-	print "Producing alignments..."
 	for mafft_file in mafft_list:
 		xcounter + 1
 		command_string = "mafft --quiet {} > {}".format(combo_directory + mafft_file, output_directory + "aligned_" + mafft_file)

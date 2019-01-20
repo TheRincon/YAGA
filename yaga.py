@@ -39,15 +39,15 @@ The available commands are:
 	def yaga(self):
 		print "Starting YAGA with \"yaga\" option..."
 		parser = argparse.ArgumentParser(description='Record changes to the repository')
-		parser.add_argument('-d','--dir', help='Path to the Directory used to generate Orthofinder Results', required=True)
+		# parser.add_argument('-d','--dir', help='Path to the Directory used to generate Orthofinder Results', required=True)
 		parser.add_argument('-g','--go', help='Path to the a GO file (Interproscan results)', required=True)
 		parser.add_argument('-k','--kegg', help='Path to the Kegg File (BLASTKoala file)', required=False)
 		parser.add_argument('-t','--target', help='Path to the target json', required=True)
 		args = vars(parser.parse_args(sys.argv[2:]))
-		directory = args["dir"]
 		go_file = args["go"]
 		kegg_file = args["kegg"]
 		tj = args["target"]
+		directory, pop1, pop2, pop3, pop4 = yutils.read_target_json(tj)
 		middle_path, end_path, species_path, orthologues_path, directory, other_end = yutils.directory_check(directory)
 		species = yutils.find_names_species(species_path)
 		sco_list = yutils.get_scos(yutils.make_simple_tabs(len(species)), directory + "Orthogroups.GeneCount.csv")
@@ -60,10 +60,9 @@ The available commands are:
 		yutils.make_safe_dir(directory+"YAGA/Single_Copy_Gene_Trees/")
 		print "Copying Single copy orthogroup files to \"/YAGA/Single_Copy_Gene_Trees/\"..."
 		yutils.copyfiles_to_dir(directory+"YAGA/Single_Copy_Gene_Trees/", src, sco_list)
-		target, lm, nn, out = yutils.read_target_json(tj)
 		print "Examining tree structures and finding features..."
 		ts = yutils.get_neighbors(directory+"YAGA/Single_Copy_Gene_Trees/", species, target)
-		target_set = yutils.get_target_set(ts, lm, out, nn)
+		target_set = yutils.get_target_set(ts, pop3, pop4, pop2)
 		c = yutils.get_total_genes(go_file)
 		print "Writing output file..."
 		yutils.get_enriched_annotations(target_set, gos, directory+"Orthogroups.csv", target, directory)
@@ -74,13 +73,12 @@ The available commands are:
 	def abba(self):
 		print "Starting YAGA with \"abba\" option..."
 		parser = argparse.ArgumentParser(description='Gene by gene analysis for introgression')
-		parser.add_argument('-d','--dir', help='Path to the Directory used to generate Orthofinder Results', required=True)
 		parser.add_argument('-t','--target', help='Path to the target json', required=True)
 		parser.add_argument('-m', '--mauve', help='MAUVE alignment file', required=False)
 		args = parser.parse_args(sys.argv[2:])
-		directory = args.dir
 		tj = args.target
-		middle_path, end_path, species_path, orthologues_path, directory, other_end = yutils.directory_check(directory)
+		directory, pop1, pop2, pop3, pop4 = yutils.read_target_json(tj)
+		middle_path, end_path, species_path, orthologues_path, directory, other_end = yutils.directory_check(str(directory))
 		print "Creating YAGA output directories...."
 		yutils.make_safe_dir(directory+"YAGA/")
 		yutils.make_safe_dir(directory+"YAGA/GFFs/")
@@ -92,12 +90,11 @@ The available commands are:
 		pop1_genome, pop2_genome, pop3_genome, pop4_genome, pop1_gff, pop2_gff, pop3_gff, pop4_gff = yutils.read_target_json_abba(tj)
 		print "Extracting CDS regions..."
 		pop_dicts = yutils.cds_helper([pop1_genome, pop2_genome, pop3_genome, pop4_genome], [pop1_gff, pop2_gff, pop3_gff, pop4_gff], directory)
-		pop1, pop2, pop3, pop4 = yutils.read_target_json(tj)
 		og_dictionary, indexed_species = yutils.orthogroup_mapping([pop1, pop2, pop3, pop4], species, directory+"Orthogroups.csv")
 		print "Generating ABBA/BABA Fastas from Orthogroups..."
 		combinations = yutils.get_combinations(og_dictionary, indexed_species)
 		yutils.get_seqs_for_alignments(combinations, pop_dicts, directory+"YAGA/Combinations/")
-		print "Getting MAFFT alignements..."
+		print "Getting MAFFT alignments..."
 		num_of_alignments = yutils.run_mafft(directory+"YAGA/Combinations/", directory+"YAGA/Alignments/")
 		print "Calling into R to calculate ABBA/BABA likelihoods..."
 		command_string = "Rscript {} {} > {}".format(sys.path[0] + "/abbababa.r", directory + "YAGA/Alignments/", directory + "YAGA/Results/ABBA_BABA_OUTPUT.txt")
