@@ -99,7 +99,7 @@ The available commands are:
 		# print "\nCalling into R to calculate ABBA/BABA likelihoods..."
 		# command_string = "Rscript {} {} > {}".format(sys.path[0] + "/abbababa.r", directory + "YAGA/Alignments/", directory + "YAGA/Results/ABBA_BABA_OUTPUT.txt")
 		# os.system(command_string)
-		yutils.parse_abba_baba(directory+"YAGA/Results/ABBA_BABA_OUTPUT.txt", 9418, directory+"/YAGA/Results/Final_ABBA_BABA.txt") # yutils.parse_abba_baba(directory+"YAGA/Results/ABBA_BABA_OUTPUT.txt", num_of_alignments)
+		yutils.parse_abba_baba(directory+"YAGA/Results/ABBA_BABA_OUTPUT.txt", 9418, directory+"/YAGA/Results/Final_ABBA_BABA.txt", directory+"/YAGA/Results/Final_Orthogroup_ABBA_BABA.txt") # yutils.parse_abba_baba(directory+"YAGA/Results/ABBA_BABA_OUTPUT.txt", num_of_alignments)
 		print "Finished!\nOutput in {}".format(directory+"YAGA/")
 
 	def baba(self):

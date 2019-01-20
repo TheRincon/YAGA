@@ -408,7 +408,7 @@ def get_cds_coordinates(gff, directory):
 			fout.write(i)
 	return directory+"YAGA/GFFs/" + gff.split("/")[-1].split(".")[0] + "_cds.gff"
 
-def parse_abba_baba(abba_file, num, new_file):
+def parse_abba_baba(abba_file, num, new_file, coarse_file):
 	og_fine_dict = {}
 	og_coarse_dict = {}
 	with open(abba_file, "rt") as f:
@@ -425,15 +425,26 @@ def parse_abba_baba(abba_file, num, new_file):
 				if D == 'NaN':
 					D = "0.000"
 				spacer = "_"
-				og_fine_dict[og + "_" + subscript] = D
+				og_fine_dict[og + "_" + subscript] = float(D)
 				if og in og_coarse_dict:
-					og_coarse_dict[og].append(D)
+					og_coarse_dict[og].append(float(D))
 				else:
 					og_coarse_dict[og] = [D]
 	with open(new_file, "wt") as ffinal:
 		for k, v in og_fine_dict.iteritems():
 			ffinal.write("Orthogroup combintion: " + k + "\n")
-			ffinal.write("D Statistic value = " + v + "\n")
+			ffinal.write("D Statistic value = " + str(v) + "\n")
+			ffinal.write("\n")
+
+	#change D to 0.00 if negative?
+	with open(coarse_file, "wt") as ffinal:
+		for n, m in og_coarse_dict.iteritems():
+			summy = 0.0
+			for k in m:
+				summy = summy + float(k)
+			ffinal.write("Orthogroup: " + n + "\n")
+			ffinal.write("D Statistic value = " + str(m) + "\n")
+			ffinal.write("Average D value: " + str(summy / float(len(m))) + "\n")
 			ffinal.write("\n")
 
 
