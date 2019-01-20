@@ -74,32 +74,32 @@ The available commands are:
 		print "Starting YAGA with \"abba\" option..."
 		parser = argparse.ArgumentParser(description='Gene by gene analysis for introgression')
 		parser.add_argument('-t','--target', help='Path to the target json', required=True)
-		parser.add_argument('-m', '--mauve', help='MAUVE alignment file', required=False)
+		# parser.add_argument('-m', '--mauve', help='MAUVE alignment file', required=False)
 		args = parser.parse_args(sys.argv[2:])
 		tj = args.target
 		directory, pop1, pop2, pop3, pop4 = yutils.read_target_json(tj)
-		middle_path, end_path, species_path, orthologues_path, directory, other_end = yutils.directory_check(str(directory))
-		print "Creating YAGA output directories...."
-		yutils.make_safe_dir(directory+"YAGA/")
-		yutils.make_safe_dir(directory+"YAGA/GFFs/")
-		yutils.make_safe_dir(directory+"YAGA/Alignments/")
-		yutils.make_safe_dir(directory+"YAGA/Combinations/")
-		yutils.make_safe_dir(directory+"YAGA/Results/")
-		print "Getting Populations and Species..."
-		species = yutils.find_names_species(species_path)
-		pop1_genome, pop2_genome, pop3_genome, pop4_genome, pop1_gff, pop2_gff, pop3_gff, pop4_gff = yutils.read_target_json_abba(tj)
-		print "Extracting CDS regions..."
-		pop_dicts = yutils.cds_helper([pop1_genome, pop2_genome, pop3_genome, pop4_genome], [pop1_gff, pop2_gff, pop3_gff, pop4_gff], directory)
-		og_dictionary, indexed_species = yutils.orthogroup_mapping([pop1, pop2, pop3, pop4], species, directory+"Orthogroups.csv")
-		print "Generating ABBA/BABA Fastas from Orthogroups..."
-		combinations = yutils.get_combinations(og_dictionary, indexed_species)
-		yutils.get_seqs_for_alignments(combinations, pop_dicts, directory+"YAGA/Combinations/")
-		print "Getting MAFFT alignments..."
-		num_of_alignments = yutils.run_mafft(directory+"YAGA/Combinations/", directory+"YAGA/Alignments/")
-		print "Calling into R to calculate ABBA/BABA likelihoods..."
-		command_string = "Rscript {} {} > {}".format(sys.path[0] + "/abbababa.r", directory + "YAGA/Alignments/", directory + "YAGA/Results/ABBA_BABA_OUTPUT.txt")
-		os.system(command_string)
-		yutils.parse_abba_baba(directory+"YAGA/Results/ABBA_BABA_OUTPUT.txt", num_of_alignments)
+		# middle_path, end_path, species_path, orthologues_path, directory, other_end = yutils.directory_check(str(directory))
+		# print "Creating YAGA output directories...."
+		# yutils.make_safe_dir(directory+"YAGA/")
+		# yutils.make_safe_dir(directory+"YAGA/GFFs/")
+		# yutils.make_safe_dir(directory+"YAGA/Alignments/")
+		# yutils.make_safe_dir(directory+"YAGA/Combinations/")
+		# yutils.make_safe_dir(directory+"YAGA/Results/")
+		# print "Getting Populations and Species..."
+		# species = yutils.find_names_species(species_path)
+		# pop1_genome, pop2_genome, pop3_genome, pop4_genome, pop1_gff, pop2_gff, pop3_gff, pop4_gff = yutils.read_target_json_abba(tj)
+		# print "Extracting CDS regions..."
+		# pop_dicts = yutils.cds_helper([pop1_genome, pop2_genome, pop3_genome, pop4_genome], [pop1_gff, pop2_gff, pop3_gff, pop4_gff], directory)
+		# og_dictionary, indexed_species = yutils.orthogroup_mapping([pop1, pop2, pop3, pop4], species, directory+"Orthogroups.csv")
+		# print "Generating ABBA/BABA Fastas from Orthogroups..."
+		# combinations = yutils.get_combinations(og_dictionary, indexed_species)
+		# yutils.get_seqs_for_alignments(combinations, pop_dicts, directory+"YAGA/Combinations/")
+		# print "\nGetting MAFFT alignments..."
+		# num_of_alignments = yutils.run_mafft(directory+"YAGA/Combinations/", directory+"YAGA/Alignments/")
+		# print "\nCalling into R to calculate ABBA/BABA likelihoods..."
+		# command_string = "Rscript {} {} > {}".format(sys.path[0] + "/abbababa.r", directory + "YAGA/Alignments/", directory + "YAGA/Results/ABBA_BABA_OUTPUT.txt")
+		# os.system(command_string)
+		yutils.parse_abba_baba(directory+"YAGA/Results/ABBA_BABA_OUTPUT.txt", 9418, directory+"/YAGA/Results/Final_ABBA_BABA.txt") # yutils.parse_abba_baba(directory+"YAGA/Results/ABBA_BABA_OUTPUT.txt", num_of_alignments)
 		print "Finished!\nOutput in {}".format(directory+"YAGA/")
 
 	def baba(self):

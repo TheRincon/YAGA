@@ -408,27 +408,33 @@ def get_cds_coordinates(gff, directory):
 			fout.write(i)
 	return directory+"YAGA/GFFs/" + gff.split("/")[-1].split(".")[0] + "_cds.gff"
 
-def parse_abba_baba(abba_file, num):
+def parse_abba_baba(abba_file, num, new_file):
 	og_fine_dict = {}
-	og_coarse_dict = [[] for x in xrange(num)]
+	og_coarse_dict = {}
 	with open(abba_file, "rt") as f:
 		for line in f:
-			clipped = line.split("] ")
-			if clipped[1].startswith("|||"):
-				og = next(f)
-				subscript = next(f)
+			clipped = line.strip().split("] ")
+			if clipped[1].find("|||") > -1:
+				og = next(f).strip().split("] ")[1][1:-1]
+				subscript = next(f).strip().split("] ")[1][1:-1]
 				next(f)
 				next(f)
 				next(f)
 				D_1 = next(f).split("D statistic = ")[1]
-				D = D_1[:-1]
+				D = "".join(D_1[:-2])
+				if D == 'NaN':
+					D = "0.000"
+				spacer = "_"
 				og_fine_dict[og + "_" + subscript] = D
-				if og_coarse_dict[og] is None:
-					og_coarse_dict[og] = D
+				if og in og_coarse_dict:
+					og_coarse_dict[og].append(D)
 				else:
-					og_coarse_dict[og].appnd(D)
-	print og_coarse_dict
-	print og_fine_dict
+					og_coarse_dict[og] = [D]
+	with open(new_file, "wt") as ffinal:
+		for k, v in og_fine_dict.iteritems():
+			ffinal.write("Orthogroup combintion: " + k + "\n")
+			ffinal.write("D Statistic value = " + v + "\n")
+			ffinal.write("\n")
 
 
 
