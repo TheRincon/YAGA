@@ -114,18 +114,34 @@ True ABBA/BABA would take SNPs and look at the D-Statistics. It would be easist 
 Regardless of how the DNA is come by, the sequences can then be compared to see certain polymorphisms and evidence of introgression. 
 
 
+### Running YAGA ###
+
+```bash
+python yaga.py abba --target /Users/daniel/Desktop/YAGA/target.json
+```
+
+The only required arugment for the "abba" option is "--target" or "-t". This file contains the names of taxa in the analysis, or at least a substring, so the taxa can be recognized in other files. It also needs the gff tracks with structural annotation (read: CDS locations). These are then extracted with bedtools "getfasta" and then joined to a mature DNA which is then aligned with MAFFT to a combination of sequences from the other 3 members of the four-taxa orthogroup. 
+
+The aligned fastas are then read into R and processed by "evobiR", and the D-statistics returned for each single combination and the entire orthogroup average. Of course, this depends entirely on the combination 
+
+Likewise the "yaga" option needs the "--target" option and the GO file (interproscan output) and an optional KEGG annotation. 
+
+```bash
+python yaga.py yaga --target /Users/daniel/Desktop/YAGA/target.json -g /Users/daniel/Desktop/protein_fasta.csv -k /Users/daniel/Desktop/kegg.csv
+```
+
+### In Progress ###
+
+* Be able to align MAUVE co-linear blocks
+* Get duplicates and missing/expanded ("yaga" option)
+* Implement "geno" file and genome wide analysis
+* Find average D-stats by gene present, not just overall combination
+
 ### Tips ###
 
 Orthofinder names the "species" according to the protein fasta file names, so the "target.json" will need to have values similar to the filenames. If not, just run Orthofinder again with renamed protein fasta files. 
 
 Tested on Orthofinder 2.2.1, other Orthofinder versions should work.
-
-### TODO ###
-
-* Co-linear blocks from Mauve
-* Genome wide data
-* figure out the tutorial
-
 
 
 

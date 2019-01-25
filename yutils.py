@@ -447,8 +447,6 @@ def parse_abba_baba(abba_file, num, new_file, coarse_file):
 			ffinal.write("Average D value: " + str(summy / float(len(m))) + "\n")
 			ffinal.write("\n")
 
-
-
 # return all the file paths I need in main from here, very messy
 def directory_check(directory):
 	end_path = ""
