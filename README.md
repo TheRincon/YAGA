@@ -2,13 +2,15 @@
 
 ### YAGA is a tool that performs ABBA/BABA analysis for Orthofinder results. ###
 
-From an Orthofinder_Results folder it will conduct an automated filtering of single copy orthologs for the species provided and then, paired with a KEGG, or GO file (or both) will associate functional enrichment for the different species and characteristics. 
+From an Orthofinder_Results folder the "yaga" option will conduct an automated filtering of single copy orthologs for the species provided and then, paired with a KEGG, or GO file (or both), it will associate functional enrichment for the different species and characteristics. 
+
+The "abba" option will find the orthogroups, extract all of the CDS regions from the genes in those orthogroups and emit four taxa D-statistics for the orthogroup combinations. 
 
 While ABBA/BABA was not relavent for my master's thesis because a lack of introgression (fungi are not expected to hybridize and horizontal gene transfer is quite rare), I release this tool in the hope it will be useful to others. Instead, I was looking for identity between genes of organisms that have desired traits but within the structure of the ABBA/BABA four-taxa tree. 
 
 ### Requirements ###
 
-Needs [R](http://archive.linux.duke.edu/cran/), the statistical programming language. Also, if you want to use the "abba" option, then please install "evobiR" in R:
+Needs [R](http://archive.linux.duke.edu/cran/), the statistical programming language. If you want to use the "abba" option, then install "evobiR" in R:
 
 ```r
 install.packages("evobiR")
@@ -19,7 +21,7 @@ Please also install [mafft](https://mafft.cbrc.jp/alignment/software/source.html
 ```bash
 brew install mafft bedtools
 ```
-If on linux apt-get install should work as well.
+Linux apt-get install should work as well.
 
 The main functions are from python. Please have version 2.7+ 
 Check the version with:
