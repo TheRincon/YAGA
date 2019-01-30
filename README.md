@@ -8,17 +8,18 @@ While ABBA/BABA was not relavent for my master's thesis because a lack of introg
 
 ### Requirements ###
 
-Need [R](http://archive.linux.duke.edu/cran/), the statistical programming language. Also, if you want to use the "abba" option, then please install "evobiR":
+Needs [R](http://archive.linux.duke.edu/cran/), the statistical programming language. Also, if you want to use the "abba" option, then please install "evobiR" in R:
 
 ```r
 install.packages("evobiR")
 ```
 
-Please also install [mafft](https://mafft.cbrc.jp/alignment/software/source.html) and [bedtools](https://bedtools.readthedocs.io/en/latest/content/installation.html) (for MacOS):
+Please also install [mafft](https://mafft.cbrc.jp/alignment/software/source.html) and [bedtools](https://bedtools.readthedocs.io/en/latest/content/installation.html) with the "abba" option. If you have MacOS and [Homebrew](https://brew.sh/) just use:
 
 ```bash
 brew install mafft bedtools
 ```
+If on linux apt-get install should work as well.
 
 The main functions are from python. Please have version 2.7+ 
 Check the version with:
