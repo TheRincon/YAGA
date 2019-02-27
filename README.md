@@ -120,7 +120,7 @@ Regardless of how the DNA is come by, the sequences can then be compared to see 
 ### Running YAGA ###
 
 ```bash
-python yaga.py abba --target /Users/daniel/Desktop/YAGA/target.json
+python yaga.py abba --target /path/to/dir/YAGA/target.json
 ```
 
 The only required arugment for the "abba" option is "--target" or "-t". This file contains the names of taxa in the analysis, or at least a substring, so the taxa can be recognized in other files. It also needs the gff tracks with structural annotation (read: CDS locations). These are then extracted with bedtools "getfasta" and then joined to a mature DNA which is then aligned with MAFFT to a combination of sequences from the other 3 members of the four-taxa orthogroup. 
@@ -130,7 +130,7 @@ The aligned fastas are then read into R and processed by "evobiR", and the D-sta
 Likewise the "yaga" option needs the "--target" option and the GO file (interproscan output) and an optional KEGG annotation. 
 
 ```bash
-python yaga.py yaga --target /Users/daniel/Desktop/YAGA/target.json -g /Users/daniel/Desktop/protein_fasta.csv -k /Users/daniel/Desktop/kegg.csv
+python yaga.py yaga --target /path/to/dir/YAGA/target.json -g /path/to/dir/protein_fasta.csv -k /path/to/dir/kegg.csv
 ```
 
 ### In Progress ###
